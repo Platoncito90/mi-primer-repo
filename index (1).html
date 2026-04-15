@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BotSignal Latam · Señales de Trading Automatizadas</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #04080f;
+  --bg2:     #070d1a;
+  --panel:   #090f1e;
+  --border:  #0e2040;
+  --cyan:    #00d4ff;
+  --gold:    #ffc93c;
+  --green:   #00ff88;
+  --red:     #ff3355;
+  --purple:  #9b59ff;
+  --text:    #c0d8f0;
+  --muted:   #3a5a7a;
+  --glow-c:  0 0 18px rgba(0,212,255,0.4);
+  --glow-g:  0 0 18px rgba(255,201,60,0.4);
+  --glow-gr: 0 0 18px rgba(0,255,136,0.4);
+  --glow-p:  0 0 18px rgba(155,89,255,0.4);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* GRID BG */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,212,255,0.07) 0%, transparent 60%),
+    linear-gradient(rgba(0,212,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.02) 1px, transparent 1px);
+  background-size: auto, 50px 50px, 50px 50px;
+  pointer-events: none; z-index: 0;
+}
+
+/* SCANLINE */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events: none; z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(4,8,15,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+}
+.nav-inner { max-width: 1100px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-family: 'Orbitron', monospace; font-size: 1rem; font-weight: 900; color: var(--cyan); letter-spacing: 3px; text-shadow: var(--glow-c); }
+.nav-logo span { color: var(--gold); text-shadow: var(--glow-g); }
+.nav-cta {
+  font-family: 'Orbitron', monospace; font-size: 0.6rem; font-weight: 700; letter-spacing: 2px;
+  padding: 8px 20px; border: 1px solid var(--green); color: var(--green);
+  background: transparent; cursor: pointer; text-decoration: none;
+  transition: all 0.2s;
+}
+.nav-cta:hover { background: rgba(0,255,136,0.1); box-shadow: var(--glow-gr); }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  padding: 100px 20px 60px;
+}
+.hero-badge {
+  font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 4px;
+  color: var(--cyan); border: 1px solid rgba(0,212,255,0.3);
+  padding: 5px 16px; display: inline-block; margin-bottom: 28px;
+  animation: fadein 0.8s ease both;
+}
+.hero-title {
+  font-family: 'Orbitron', monospace; font-size: clamp(2.2rem, 6vw, 4.5rem);
+  font-weight: 900; letter-spacing: 4px; line-height: 1.1;
+  margin-bottom: 10px;
+  animation: fadein 0.8s 0.1s ease both;
+}
+.hero-title .cyan { color: var(--cyan); text-shadow: var(--glow-c); }
+.hero-title .gold { color: var(--gold); text-shadow: var(--glow-g); }
+.hero-sub {
+  font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; letter-spacing: 3px;
+  color: var(--muted); margin-bottom: 28px;
+  animation: fadein 0.8s 0.2s ease both;
+}
+.hero-desc {
+  font-size: 1.15rem; color: var(--text); max-width: 580px; margin: 0 auto 40px;
+  line-height: 1.7; font-weight: 400;
+  animation: fadein 0.8s 0.3s ease both;
+}
+.hero-desc strong { color: var(--cyan); font-weight: 600; }
+
+.hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; animation: fadein 0.8s 0.4s ease both; }
+.btn-primary {
+  font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
+  padding: 14px 32px; border: 2px solid var(--cyan); color: var(--cyan);
+  background: rgba(0,212,255,0.08); cursor: pointer; text-decoration: none;
+  transition: all 0.25s; display: inline-block;
+}
+.btn-primary:hover { background: rgba(0,212,255,0.18); box-shadow: var(--glow-c), inset 0 0 20px rgba(0,212,255,0.05); transform: translateY(-1px); }
+.btn-secondary {
+  font-family: 'Orbitron', monospace; font-size: 0.7rem; font-weight: 700; letter-spacing: 2px;
+  padding: 14px 32px; border: 1px solid var(--muted); color: var(--muted);
+  background: transparent; cursor: pointer; text-decoration: none;
+  transition: all 0.25s; display: inline-block;
+}
+.btn-secondary:hover { border-color: var(--text); color: var(--text); }
+
+.hero-stats {
+  display: flex; gap: 40px; justify-content: center; margin-top: 56px; flex-wrap: wrap;
+  animation: fadein 0.8s 0.5s ease both;
+}
+.hstat { text-align: center; }
+.hstat-val { font-family: 'Orbitron', monospace; font-size: 1.8rem; font-weight: 900; color: var(--cyan); text-shadow: var(--glow-c); }
+.hstat-lbl { font-family: 'Share Tech Mono', monospace; font-size: 0.55rem; color: var(--muted); letter-spacing: 2px; margin-top: 4px; }
+
+/* ─── SCAN LINE HERO ─── */
+.scanline { height: 1px; background: linear-gradient(90deg, transparent, var(--cyan), var(--gold), transparent); margin: 0; animation: scanPulse 3s ease-in-out infinite; }
+@keyframes scanPulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
+
+/* ─── SECTION ─── */
+section { padding: 80px 0; }
+.section-label { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; letter-spacing: 4px; color: var(--cyan); margin-bottom: 10px; }
+.section-title { font-family: 'Orbitron', monospace; font-size: clamp(1.4rem, 3vw, 2.2rem); font-weight: 900; letter-spacing: 2px; margin-bottom: 14px; }
+.section-desc { font-size: 1rem; color: var(--muted); max-width: 520px; line-height: 1.7; }
+
+/* ─── SIGNALS ─── */
+.signals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 48px; }
+.sig-card {
+  background: var(--panel); border: 1px solid var(--border);
+  padding: 28px 24px; position: relative; overflow: hidden;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.sig-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+.sig-card.cyan::before { background: var(--cyan); }
+.sig-card.gold::before { background: var(--gold); }
+.sig-card.purple::before { background: var(--purple); }
+.sig-card:hover { border-color: rgba(0,212,255,0.3); box-shadow: 0 0 30px rgba(0,212,255,0.05); }
+
+.sig-icon { font-size: 1.8rem; margin-bottom: 16px; }
+.sig-name { font-family: 'Orbitron', monospace; font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; margin-bottom: 8px; }
+.sig-name.cyan { color: var(--cyan); }
+.sig-name.gold { color: var(--gold); }
+.sig-name.purple { color: var(--purple); }
+.sig-desc { font-size: 0.92rem; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+.sig-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-family: 'Share Tech Mono', monospace; font-size: 0.52rem; letter-spacing: 1px;
+  padding: 3px 8px; border: 1px solid var(--border); color: var(--muted);
+}
+
+/* ─── LIVE FEED MOCKUP ─── */
+.feed-section { background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 80px 0; }
+.feed-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.feed-phone {
+  background: var(--panel); border: 1px solid var(--border);
+  border-top: 2px solid var(--cyan);
+  max-width: 340px; margin: 0 auto;
+  font-family: 'Share Tech Mono', monospace;
+  box-shadow: 0 0 60px rgba(0,212,255,0.08);
+}
+.phone-header {
+  background: var(--bg2); padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.phone-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cyan); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+.phone-title { font-size: 0.65rem; color: var(--cyan); letter-spacing: 2px; }
+.phone-sub { font-size: 0.52rem; color: var(--muted); margin-top: 1px; }
+
+.msg { padding: 12px 16px; border-bottom: 1px solid rgba(14,32,64,0.5); }
+.msg-time { font-size: 0.5rem; color: var(--muted); margin-bottom: 5px; }
+.msg-body { font-size: 0.72rem; line-height: 1.6; }
+.msg.buy .msg-body { color: var(--green); }
+.msg.sell .msg-body { color: var(--red); }
+.msg.info .msg-body { color: var(--cyan); }
+.msg.alert .msg-body { color: var(--gold); }
+.msg-ticker { font-weight: 700; font-size: 0.82rem; }
+
+/* ─── PRICING ─── */
+.pricing-wrap { display: flex; justify-content: center; gap: 24px; margin-top: 48px; flex-wrap: wrap; }
+.price-card {
+  background: var(--panel); border: 1px solid var(--border);
+  padding: 36px 32px; text-align: center; width: 300px;
+  position: relative; transition: all 0.3s;
+}
+.price-card.featured {
+  border-color: var(--cyan);
+  box-shadow: 0 0 40px rgba(0,212,255,0.1);
+}
+.price-badge {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+  font-family: 'Orbitron', monospace; font-size: 0.52rem; letter-spacing: 2px;
+  padding: 4px 14px; background: var(--cyan); color: var(--bg);
+  font-weight: 700;
+}
+.price-name { font-family: 'Orbitron', monospace; font-size: 0.72rem; letter-spacing: 3px; color: var(--muted); margin-bottom: 20px; }
+.price-val { font-family: 'Orbitron', monospace; font-size: 3rem; font-weight: 900; color: var(--cyan); text-shadow: var(--glow-c); line-height: 1; }
+.price-val span { font-size: 1rem; color: var(--muted); }
+.price-period { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 2px; margin: 8px 0 24px; }
+.price-features { list-style: none; text-align: left; margin-bottom: 28px; }
+.price-features li { font-size: 0.9rem; padding: 8px 0; border-bottom: 1px solid rgba(14,32,64,0.5); display: flex; align-items: center; gap: 10px; }
+.price-features li::before { content: '▶'; font-size: 0.5rem; color: var(--cyan); flex-shrink: 0; }
+.price-features li.muted { color: var(--muted); }
+.price-features li.muted::before { color: var(--muted); }
+
+.btn-subscribe {
+  width: 100%; font-family: 'Orbitron', monospace; font-size: 0.68rem; font-weight: 700;
+  letter-spacing: 2px; padding: 14px; cursor: pointer; transition: all 0.25s;
+  text-decoration: none; display: block; text-align: center;
+}
+.btn-subscribe.primary { border: 2px solid var(--cyan); color: var(--cyan); background: rgba(0,212,255,0.08); }
+.btn-subscribe.primary:hover { background: rgba(0,212,255,0.2); box-shadow: var(--glow-c); }
+.btn-subscribe.ghost { border: 1px solid var(--muted); color: var(--muted); background: transparent; }
+.btn-subscribe.ghost:hover { border-color: var(--text); color: var(--text); }
+
+/* ─── TOOLS ─── */
+.tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 48px; }
+.tool-card {
+  background: var(--panel); border: 1px solid var(--border);
+  padding: 24px; display: flex; gap: 20px; align-items: flex-start;
+  transition: border-color 0.3s;
+}
+.tool-card:hover { border-color: rgba(0,212,255,0.3); }
+.tool-icon { font-size: 2rem; flex-shrink: 0; }
+.tool-name { font-family: 'Orbitron', monospace; font-size: 0.75rem; font-weight: 700; color: var(--gold); letter-spacing: 2px; margin-bottom: 6px; }
+.tool-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+.tool-link { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--cyan); text-decoration: none; letter-spacing: 1px; }
+.tool-link:hover { text-shadow: var(--glow-c); }
+
+/* ─── FAQ ─── */
+.faq-list { margin-top: 40px; max-width: 700px; }
+.faq-item { border-bottom: 1px solid var(--border); padding: 20px 0; }
+.faq-q { font-family: 'Orbitron', monospace; font-size: 0.75rem; font-weight: 700; color: var(--text); letter-spacing: 1px; margin-bottom: 10px; cursor: pointer; }
+.faq-a { font-size: 0.92rem; color: var(--muted); line-height: 1.7; }
+
+/* ─── CTA FINAL ─── */
+.cta-section {
+  text-align: center; padding: 100px 20px;
+  background: linear-gradient(180deg, transparent, rgba(0,212,255,0.03), transparent);
+}
+.cta-title { font-family: 'Orbitron', monospace; font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 900; letter-spacing: 3px; margin-bottom: 16px; }
+.cta-title .cyan { color: var(--cyan); text-shadow: var(--glow-c); }
+.cta-sub { font-size: 1rem; color: var(--muted); margin-bottom: 36px; }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--bg2); border-top: 1px solid var(--border);
+  padding: 32px 0; text-align: center;
+  font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; color: var(--muted); letter-spacing: 2px;
+}
+footer a { color: var(--cyan); text-decoration: none; }
+
+@keyframes fadein { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 768px) {
+  .signals-grid { grid-template-columns: 1fr; }
+  .feed-wrap { grid-template-columns: 1fr; }
+  .tools-grid { grid-template-columns: 1fr; }
+  .hero-stats { gap: 24px; }
+  .pricing-wrap { flex-direction: column; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">BOT<span>SIGNAL</span> <span style="color:var(--muted);font-size:.55rem;letter-spacing:2px">LATAM</span></div>
+    <a href="#pricing" class="nav-cta">SUSCRIBIRSE · $10/MES</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-badge">⚡ SEÑALES AUTOMATIZADAS EN TIEMPO REAL</div>
+    <h1 class="hero-title">
+      <span class="cyan">BOT</span><span class="gold">SIGNAL</span><br>LATAM
+    </h1>
+    <div class="hero-sub">OPCIONES · CCL · CRYPTO · BYMA · NYSE · BINANCE</div>
+    <p class="hero-desc">
+      Señales de trading generadas por <strong>algoritmos cuantitativos</strong> y enviadas directo a tu Telegram. Sin delay. Sin ruido. Solo operaciones con edge real.
+    </p>
+    <div class="hero-btns">
+      <a href="#pricing" class="btn-primary">▶ SUSCRIBIRSE AHORA</a>
+      <a href="#signals" class="btn-secondary">VER SEÑALES</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat">
+        <div class="hstat-val">3</div>
+        <div class="hstat-lbl">MERCADOS</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-val" style="color:var(--gold);text-shadow:var(--glow-g)">24/7</div>
+        <div class="hstat-lbl">MONITOREO</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-val" style="color:var(--green);text-shadow:var(--glow-gr)">$10</div>
+        <div class="hstat-lbl">USD / MES</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="scanline"></div>
+
+<!-- SIGNALS -->
+<section id="signals">
+  <div class="wrap">
+    <div class="section-label">// COBERTURA DE MERCADOS</div>
+    <h2 class="section-title">Tres mercados.<br>Un solo canal.</h2>
+    <p class="section-desc">Algoritmos especializados monitoreando oportunidades en opciones, divisas y crypto las 24 horas.</p>
+
+    <div class="signals-grid">
+      <div class="sig-card cyan">
+        <div class="sig-icon">📊</div>
+        <div class="sig-name cyan">OPCIONES BYMA / NYSE</div>
+        <div class="sig-desc">Señales generadas por OptionsGuru con Black-Scholes, Greeks y scoring cuantitativo. Calls y Puts con edge positivo.</div>
+        <div class="sig-tags">
+          <span class="tag">BLACK-SCHOLES</span>
+          <span class="tag">DELTA / GAMMA</span>
+          <span class="tag">SCORE ≥ 60</span>
+          <span class="tag">BYMA</span>
+          <span class="tag">NYSE</span>
+        </div>
+      </div>
+
+      <div class="sig-card gold">
+        <div class="sig-icon">💱</div>
+        <div class="sig-name gold">GAP CCL · ADRs y CEDEARs</div>
+        <div class="sig-desc">Alertas cuando el gap CCL supera el umbral en ADRs y CEDEARs argentinos. Señal BARATA/CARA en tiempo real.</div>
+        <div class="sig-tags">
+          <span class="tag">CCL IMPLÍCITO</span>
+          <span class="tag">ADRs</span>
+          <span class="tag">CEDEARs</span>
+          <span class="tag">GGAL · YPF · PAMP</span>
+        </div>
+      </div>
+
+      <div class="sig-card purple">
+        <div class="sig-icon">₿</div>
+        <div class="sig-name purple">CRYPTO · BTC / ETH / ALTCOINS</div>
+        <div class="sig-desc">Señales de los bots KuCoin con scoring ATR/ADX/volumen en BTC, ETH, SOL, XRP, DOGE, ADA, AVAX y más.</div>
+        <div class="sig-tags">
+          <span class="tag">ATR · ADX</span>
+          <span class="tag">BTC · ETH · SOL</span>
+          <span class="tag">KUCOIN FUTURES</span>
+          <span class="tag">MULTICRYPTO</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE FEED -->
+<div class="feed-section">
+  <div class="wrap">
+    <div class="feed-wrap">
+      <div>
+        <div class="section-label">// PREVIEW DEL CANAL</div>
+        <h2 class="section-title">Así llegan<br>las señales.</h2>
+        <p class="section-desc" style="margin-bottom:24px">Mensajes claros, directos y accionables. Ticker, tipo de operación, precio y justificación en segundos.</p>
+        <a href="#pricing" class="btn-primary" style="display:inline-block">UNIRME AL CANAL →</a>
+      </div>
+
+      <div class="feed-phone">
+        <div class="phone-header">
+          <div class="phone-dot"></div>
+          <div>
+            <div class="phone-title">BOTSIGNAL LATAM</div>
+            <div class="phone-sub">Canal premium · señales en vivo</div>
+          </div>
+        </div>
+
+        <div class="msg buy">
+          <div class="msg-time">09:32 · BYMA · OPCIONES</div>
+          <div class="msg-body">
+            ✅ <span class="msg-ticker">GGAL CALL $7.500</span> · Jun/25<br>
+            Score: 74 · Delta: 0.42 · Edge: +$18<br>
+            IV/HV: 1.21 · Señal: <strong>COMPRAR</strong>
+          </div>
+        </div>
+
+        <div class="msg alert">
+          <div class="msg-time">10:15 · CCL RADAR</div>
+          <div class="msg-body">
+            ⚠️ <span class="msg-ticker">GGAL</span> gap CCL: -4.49%<br>
+            Teórico: $6.648 · Local: $6.350<br>
+            Señal: <strong>BARATA</strong> · CCL impl: 0.07
+          </div>
+        </div>
+
+        <div class="msg buy">
+          <div class="msg-time">11:48 · KUCOIN · BTC</div>
+          <div class="msg-body">
+            🟢 <span class="msg-ticker">BTC/USDT</span> LONG · $94.200<br>
+            ATR score: 82 · ADX: 28.4<br>
+            TP: $96.800 · SL: $93.100
+          </div>
+        </div>
+
+        <div class="msg info">
+          <div class="msg-time">13:20 · NYSE · OPCIONES</div>
+          <div class="msg-body">
+            📊 <span class="msg-ticker">NVDA PUT $118</span> · 4 DTE<br>
+            Score: 68 · IV: 34.2% · Edge: +$0.22<br>
+            Señal: <strong>EVALUAR</strong>
+          </div>
+        </div>
+
+        <div class="msg sell">
+          <div class="msg-time">15:05 · KUCOIN · ETH</div>
+          <div class="msg-body">
+            🔴 <span class="msg-ticker">ETH/USDT</span> SHORT · $3.180<br>
+            ADX: 31.2 · Vol score: 78<br>
+            TP: $3.050 · SL: $3.240
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<section>
+  <div class="wrap">
+    <div class="section-label">// TECNOLOGÍA DETRÁS DE LAS SEÑALES</div>
+    <h2 class="section-title">Herramientas que<br>generan las señales.</h2>
+    <p class="section-desc">Cada señal es generada por algoritmos cuantitativos que ya podés usar gratis.</p>
+
+    <div class="tools-grid">
+      <div class="tool-card">
+        <div class="tool-icon">📊</div>
+        <div>
+          <div class="tool-name">OPTIONSGURU</div>
+          <div class="tool-desc">Análisis de cadena de opciones con Black-Scholes, Greeks completos y scoring AI para NYSE, NASDAQ y BYMA.</div>
+          <a href="https://option-guru-9f2z.vercel.app" target="_blank" class="tool-link">→ option-guru-9f2z.vercel.app</a>
+        </div>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">💱</div>
+        <div>
+          <div class="tool-name">CCL RADAR v2</div>
+          <div class="tool-desc">Monitor de gap CCL en tiempo real para ADRs y CEDEARs argentinos con alertas, historial y exportación CSV.</div>
+          <a href="https://ccl-radar.vercel.app" target="_blank" class="tool-link">→ ccl-radar.vercel.app</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+  <div class="wrap" style="text-align:center">
+    <div class="section-label" style="justify-content:center;display:block">// PLANES</div>
+    <h2 class="section-title">Simple y transparente.</h2>
+    <p class="section-desc" style="margin: 0 auto">Sin contratos. Cancelás cuando querés.</p>
+
+    <div class="pricing-wrap">
+      <div class="price-card">
+        <div class="price-name">FREE</div>
+        <div class="price-val">$0<span>/mes</span></div>
+        <div class="price-period">ACCESO LIMITADO</div>
+        <ul class="price-features">
+          <li>OptionsGuru web (gratis)</li>
+          <li>CCL Radar v2 web (gratis)</li>
+          <li class="muted">Canal Telegram premium</li>
+          <li class="muted">Señales en tiempo real</li>
+          <li class="muted">Alertas automáticas</li>
+        </ul>
+        <a href="https://option-guru-9f2z.vercel.app" target="_blank" class="btn-subscribe ghost">USAR HERRAMIENTAS</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-badge">MÁS POPULAR</div>
+        <div class="price-name">PRO</div>
+        <div class="price-val" style="color:var(--cyan)">$10<span>/mes</span></div>
+        <div class="price-period">USD · FACTURACIÓN MENSUAL</div>
+        <ul class="price-features">
+          <li>Todo lo del plan Free</li>
+          <li>Canal Telegram premium</li>
+          <li>Señales opciones BYMA/NYSE</li>
+          <li>Alertas gap CCL en tiempo real</li>
+          <li>Señales crypto BTC/ETH/Altcoins</li>
+          <li>Soporte directo por chat</li>
+        </ul>
+        <a href="https://t.me/BotSignalLatam" target="_blank" class="btn-subscribe primary">▶ SUSCRIBIRSE AHORA</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="wrap">
+    <div class="section-label">// PREGUNTAS FRECUENTES</div>
+    <h2 class="section-title">FAQ</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q">¿Cómo recibo las señales?</div>
+        <div class="faq-a">Una vez que te suscribís recibís el link de invitación al canal privado de Telegram. Las señales llegan automáticamente durante el horario de mercado.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿Qué mercados cubre?</div>
+        <div class="faq-a">Opciones de BYMA y NYSE/NASDAQ, gap CCL en ADRs y CEDEARs argentinos, y crypto en KuCoin (BTC, ETH, SOL, XRP, DOGE, ADA, AVAX, MATIC, LINK).</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿Puedo cancelar cuando quiero?</div>
+        <div class="faq-a">Sí, sin contratos ni permanencia mínima. Cancelás en cualquier momento.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿Cómo se paga?</div>
+        <div class="faq-a">Aceptamos pagos en USD por Lemon Squeezy (tarjeta internacional, PayPal). Próximamente crypto.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">¿Las señales son garantizadas?</div>
+        <div class="faq-a">No. Las señales son generadas por algoritmos cuantitativos con edge estadístico, pero toda inversión tiene riesgo. Siempre hacé tu propio análisis.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<div class="cta-section">
+  <div class="wrap">
+    <h2 class="cta-title">Empezá hoy.<br><span class="cyan">$10/mes.</span></h2>
+    <p class="cta-sub">Tres mercados. Señales automáticas. Directo a tu Telegram.</p>
+    <a href="#pricing" class="btn-primary">▶ QUIERO LAS SEÑALES</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <p>BOTSIGNAL LATAM · 2026 · <a href="https://option-guru-9f2z.vercel.app" target="_blank">OptionsGuru</a> · <a href="https://ccl-radar.vercel.app" target="_blank">CCL Radar</a></p>
+    <p style="margin-top:8px;font-size:.52rem">Las señales no constituyen asesoramiento financiero. Invertir implica riesgo de pérdida de capital.</p>
+  </div>
+</footer>
+
+</body>
+</html>
